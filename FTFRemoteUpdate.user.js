@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         AMQ FTF Remote Update
 // @namespace    https://github.com/YokipiPublic/AMQ/
-// @version      0.3
+// @version      0.3.1
 // @history      0.3 Support for AMQrews
 // @history      0.2 Game validation and message display
 // @description  Adds a button to update spreadsheet with current score/rig
@@ -119,7 +119,7 @@ function addButton() {
         if (songselection.advancedOn) {
           if (songselection.advancedValue.random > 0) songselectionrandom = true;
         } else {
-          if (songselection.advancedValue.random != 3) songselectionrandom = true;
+          if (songselection.standardValue != 3) songselectionrandom = true;
         }
         data.LR = songselectionrandom ? "Random" : "Only Watched";
         // Tags
