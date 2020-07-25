@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         AMQ FTF Remote Update
 // @namespace    https://github.com/YokipiPublic/AMQ/
-// @version      0.3.1
+// @version      0.3.2
 // @history      0.3 Support for AMQrews
 // @history      0.2 Game validation and message display
 // @description  Adds a button to update spreadsheet with current score/rig
@@ -139,7 +139,7 @@ function addButton() {
 
       // If Standard, League
       } else if (gamemode == "Standard") {
-        url = "https://script.google.com/macros/s/AKfycbyslMGBlfqAwKXtcCiKg2Y0GelNjPQkqkS3oFbA/exec";
+        url = "https://script.google.com/macros/s/AKfycby3csiu8CFgX-D-zNzbj2eHrWhNjQ0xxAJ2h0_XEs7DPtum6Ks/exec";
 
         // Data
         // Score
