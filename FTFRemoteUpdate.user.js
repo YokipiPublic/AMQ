@@ -139,7 +139,7 @@ function addButton() {
 
       // If Standard, League
       } else if (gamemode == "Standard") {
-        url = "https://script.google.com/macros/s/AKfycbyQKN3iAJZMWL6gtn5_xPDs8ItQwHS_-A2tA6t2KkWwN6oZ8K8/exec";
+        url = "https://script.google.com/macros/s/AKfycbyslMGBlfqAwKXtcCiKg2Y0GelNjPQkqkS3oFbA/exec";
 
         // Data
         // Score
