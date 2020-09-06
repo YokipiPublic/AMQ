@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         AMQ FTF Remote Update
 // @namespace    https://github.com/YokipiPublic/AMQ/
-// @version      0.3.2
+// @version      0.3.3
 // @history      0.3 Support for AMQrews
 // @history      0.2 Game validation and message display
 // @description  Adds a button to update spreadsheet with current score/rig
@@ -53,7 +53,7 @@ function addButton() {
 
       // If LMS, Crews
       if (gamemode == "Last Man Standing") {
-        url = "https://script.google.com/macros/s/AKfycbyjVig9DhOBRixGXW4kVUQeN_0mXfFWCkxHcIGL2G_n1qqr-x8/exec";
+        url = "https://script.google.com/macros/s/AKfycbwxjT0unPzgIcOvJNOGwVadkQc5svvFXD0ujq0-2oXA_RK7UII/exec";
 
         // Data
         // Score and Lives
