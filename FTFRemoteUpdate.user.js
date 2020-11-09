@@ -1,7 +1,8 @@
 // ==UserScript==
 // @name         AMQ FTF Remote Update
 // @namespace    https://github.com/YokipiPublic/AMQ/
-// @version      0.3.4
+// @version      0.4.0
+// @history      0.4 New GameMode syntax and now fetches GAS app URL from GitHub
 // @history      0.3 Support for AMQrews
 // @history      0.2 Game validation and message display
 // @description  Adds a button to update spreadsheet with current score/rig
@@ -48,12 +49,15 @@ function addButton() {
       data.R2 = rigs[1];
 
       // Check game mode, assign proper URL, validate additional settings, and add relevant data
-      let gamemode = hostModal.getSettings().gameMode;
-      let url;
+      let gamemode = hostModal.getSettings().scoreType;
+      let url_data, url;
+      $.getJSON("https://raw.githubusercontent.com/YokipiPublic/AMQ/master/GAS_URLs.json", function(data) {
+        url_data = data;
+      });
 
       // If LMS, Crews
-      if (gamemode == "Last Man Standing") {
-        url = "https://script.google.com/macros/s/AKfycbyEipWhGtPCxomVL_DD2Y91G2td_MGVOzSIeQb_TwgLxTGXM2g/exec";
+      if (gamemode === 3) {
+        url = url_data.crews_url;
 
         // Data
         // Score and Lives
@@ -138,8 +142,8 @@ function addButton() {
         if (hostModal.getSettings().lives != 5) reject = Rejections.LIVES;
 
       // If Standard, League
-      } else if (gamemode == "Standard") {
-        url = "https://script.google.com/macros/s/AKfycby3csiu8CFgX-D-zNzbj2eHrWhNjQ0xxAJ2h0_XEs7DPtum6Ks/exec";
+      } else if (gamemode === 1) {
+        url = url_data.league_url;
 
         // Data
         // Score
@@ -241,6 +245,6 @@ AMQ_addScriptData({
   name: "Remote Update",
   author: "Yokipi",
   description: `
-      <p>Adds a button to submit current score and rig to spreadsheet when clicked. Supports FTF League and FTF Crews. Submission will be rejected if game settings are not correct (e.g. more than two players).</p>
+      <p>Adds a button to submit current score and rig to spreadsheet when clicked. Supports FTF League and IHL Crews. Submission will be rejected if game settings are not correct (e.g. more than two players).</p>
       `
 });
