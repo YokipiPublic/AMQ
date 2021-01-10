@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         AMQ FTF Remote Update
 // @namespace    https://github.com/YokipiPublic/AMQ/
-// @version      0.4.0
+// @version      0.4.1
 // @history      0.4 New GameMode syntax and now fetches GAS app URL from GitHub
 // @history      0.3 Support for AMQrews
 // @history      0.2 Game validation and message display
@@ -50,157 +50,156 @@ function addButton() {
 
       // Check game mode, assign proper URL, validate additional settings, and add relevant data
       let gamemode = hostModal.getSettings().scoreType;
-      let url_data, url;
-      $.getJSON("https://raw.githubusercontent.com/YokipiPublic/AMQ/master/GAS_URLs.json", function(data) {
-        url_data = data;
-      });
+      $.getJSON("https://raw.githubusercontent.com/YokipiPublic/AMQ/master/GAS_URLs.json", function(url_data) {
+        let url;
 
-      // If LMS, Crews
-      if (gamemode === 3) {
-        url = url_data.crews_url;
+        // If LMS, Crews
+        if (gamemode === 3) {
+            url = url_data.crews_url;
 
-        // Data
-        // Score and Lives
-        data.S1 = guesses[0];
-        data.L1 = scores[0];
-        data.S2 = guesses[1];
-        data.L2 = scores[1];
-        // Number of Songs
-        data.NS = parseInt(quiz.infoContainer.$currentSongCount.text(), 10);
-        if (!quiz.infoContainer.$nameHider.hasClass('hide')) data.NS--;
-        // Song Types
-        let songtypes = hostModal.getSettings().songType;
-        let songtypesarray = [];
-        if (songtypes.advancedOn) {
-          if (songtypes.advancedValue.random > 0) {
-            songtypesarray.push("OP");
-            songtypesarray.push("ED");
-            songtypesarray.push("IN");
-          } else {
-            if (songtypes.advancedValue.openings > 0) songtypesarray.push("OP");
-            if (songtypes.advancedValue.endings > 0) songtypesarray.push("ED");
-            if (songtypes.advancedValue.inserts > 0) songtypesarray.push("IN");
-          }
-        } else {
-          if (songtypes.standardValue.openings) songtypesarray.push("OP");
-          if (songtypes.standardValue.endings) songtypesarray.push("ED");
-          if (songtypes.standardValue.inserts) songtypesarray.push("IN");
-        }
-        data.ST = songtypesarray.join("/");
-        // Song Difficulty
-        let songdifficulty = hostModal.getSettings().songDifficulity; // [SIC]
-        let lowdifficulty = 100;
-        let highdifficulty = 0;
-        if (songdifficulty.advancedOn) {
-          lowdifficulty = songdifficulty.advancedValue[0];
-          highdifficulty = songdifficulty.advancedValue[1];
-        } else {
-          // Please don't play Easy/Hard
-          if (songdifficulty.standardValue.easy) {
-            lowdifficulty = Math.min(lowdifficulty, 60)
-            highdifficulty = Math.max(highdifficulty, 100)
-          }
-          if (songdifficulty.standardValue.medium) {
-            lowdifficulty = Math.min(lowdifficulty, 20)
-            highdifficulty = Math.max(highdifficulty, 60)
-          }
-          if (songdifficulty.standardValue.hard) {
-            lowdifficulty = Math.min(lowdifficulty, 0)
-            highdifficulty = Math.max(highdifficulty, 20)
-          }
-        }
-        data.SD = lowdifficulty + "-" + highdifficulty;
-        // Guess Time
-        let guesstime = hostModal.getSettings().guessTime;
-        if (guesstime.randomOn) {
-          data.GT = guesstime.randomValue[0] + "-" + guesstime.randomValue[1];
-        } else {
-          data.GT = guesstime.standardValue;
-        }
-        // Only Watched / Random
-        let songselection = hostModal.getSettings().songSelection;
-        let songselectionrandom = false;
-        if (songselection.advancedOn) {
-          if (songselection.advancedValue.random > 0) songselectionrandom = true;
-        } else {
-          if (songselection.standardValue != 3) songselectionrandom = true;
-        }
-        data.LR = songselectionrandom ? "Random" : "Only Watched";
-        // Tags
-        let tags = hostModal.getSettings().tags;
-        if (typeof tags[0] !== 'undefined') {
-          let tagprefix = "";
-          if (tags[0].state == 1) tagprefix = "+";
-          else if (tags[0].state == 2) tagprefix = "-";
-          else if (tags[0].state == 3) tagprefix = "~";
-          data.EX = tagprefix + idTranslator.tagNames[tags[0].id];
-        } else {
-          data.EX = "";
-        }
-
-        // Validation
-        if (hostModal.getSettings().lives != 5) reject = Rejections.LIVES;
-
-      // If Standard, League
-      } else if (gamemode === 1) {
-        url = url_data.league_url;
-
-        // Data
-        // Score
-        data.S1 = scores[0];
-        data.S2 = scores[1];
-
-        // Validation
-        if (quiz.infoContainer.$totalSongCount.text() != "15") reject = Rejections.SONGCOUNT;
-        else if (quiz.infoContainer.$currentSongCount.text() != "15" || !quiz.infoContainer.$nameHider.hasClass('hide'))
-          reject = Rejections.FINISHED;
-
-      // Otherwise, no idea
-      } else {
-        reject = Rejections.GAMEMODE;
-      }
-
-      // Beginning of AJAX, if no rejections
-      if (!reject) {
-
-        // AJAX request
-        console.log("Sending AJAX request")
-        submitRequest = $.ajax({
-            url: url,
-            type: "post",
-            data: data
-        });
-
-        // Callback handler that will be called on success
-        submitRequest.done(function (response, textStatus, jqXHR) {
-            if (response.result == "ERROR") {
-              if (response.error.includes("repeated entry")) {
-                displayRejection(Rejections.DUPLICATE);
-              } else {
-                displayMessage("Failed to submit for unknown reasons.\nServer may be busy, please try again.");
-                console.log("Rejected by GAS.");
-                console.error(response);
-              }
+            // Data
+            // Score and Lives
+            data.S1 = guesses[0];
+            data.L1 = scores[0];
+            data.S2 = guesses[1];
+            data.L2 = scores[1];
+            // Number of Songs
+            data.NS = parseInt(quiz.infoContainer.$currentSongCount.text(), 10);
+            if (!quiz.infoContainer.$nameHider.hasClass('hide')) data.NS--;
+            // Song Types
+            let songtypes = hostModal.getSettings().songType;
+            let songtypesarray = [];
+            if (songtypes.advancedOn) {
+                if (songtypes.advancedValue.random > 0) {
+                    songtypesarray.push("OP");
+                    songtypesarray.push("ED");
+                    songtypesarray.push("IN");
+                } else {
+                    if (songtypes.advancedValue.openings > 0) songtypesarray.push("OP");
+                    if (songtypes.advancedValue.endings > 0) songtypesarray.push("ED");
+                    if (songtypes.advancedValue.inserts > 0) songtypesarray.push("IN");
+                }
             } else {
-              displayMessage("Game successfully submitted!");
-              console.log("Submission attempt successful!");
+                if (songtypes.standardValue.openings) songtypesarray.push("OP");
+                if (songtypes.standardValue.endings) songtypesarray.push("ED");
+                if (songtypes.standardValue.inserts) songtypesarray.push("IN");
             }
-        });
+            data.ST = songtypesarray.join("/");
+            // Song Difficulty
+            let songdifficulty = hostModal.getSettings().songDifficulity; // [SIC]
+            let lowdifficulty = 100;
+            let highdifficulty = 0;
+            if (songdifficulty.advancedOn) {
+                lowdifficulty = songdifficulty.advancedValue[0];
+                highdifficulty = songdifficulty.advancedValue[1];
+            } else {
+                // Please don't play Easy/Hard
+                if (songdifficulty.standardValue.easy) {
+                    lowdifficulty = Math.min(lowdifficulty, 60)
+                    highdifficulty = Math.max(highdifficulty, 100)
+                }
+                if (songdifficulty.standardValue.medium) {
+                    lowdifficulty = Math.min(lowdifficulty, 20)
+                    highdifficulty = Math.max(highdifficulty, 60)
+                }
+                if (songdifficulty.standardValue.hard) {
+                    lowdifficulty = Math.min(lowdifficulty, 0)
+                    highdifficulty = Math.max(highdifficulty, 20)
+                }
+            }
+            data.SD = lowdifficulty + "-" + highdifficulty;
+            // Guess Time
+            let guesstime = hostModal.getSettings().guessTime;
+            if (guesstime.randomOn) {
+                data.GT = guesstime.randomValue[0] + "-" + guesstime.randomValue[1];
+            } else {
+                data.GT = guesstime.standardValue;
+            }
+            // Only Watched / Random
+            let songselection = hostModal.getSettings().songSelection;
+            let songselectionrandom = false;
+            if (songselection.advancedOn) {
+                if (songselection.advancedValue.random > 0) songselectionrandom = true;
+            } else {
+                if (songselection.standardValue != 3) songselectionrandom = true;
+            }
+            data.LR = songselectionrandom ? "Random" : "Only Watched";
+            // Tags
+            let tags = hostModal.getSettings().tags;
+            if (typeof tags[0] !== 'undefined') {
+                let tagprefix = "";
+                if (tags[0].state == 1) tagprefix = "+";
+                else if (tags[0].state == 2) tagprefix = "-";
+                else if (tags[0].state == 3) tagprefix = "~";
+                data.EX = tagprefix + idTranslator.tagNames[tags[0].id];
+            } else {
+                data.EX = "";
+            }
 
-        // Callback handler that will be called on failure
-        submitRequest.fail(function (jqXHR, textStatus, errorThrown) {
-            displayMessage("Failed to submit for unknown reasons.\nServer may be busy, please try again.");
-            console.error("Submission attempt failed: "+textStatus, errorThrown);
-        });
+            // Validation
+            if (hostModal.getSettings().lives != 5) reject = Rejections.LIVES;
 
-        // Callback handler that will be called regardless
-        // if the request failed or succeeded
-        submitRequest.always(function () {
+            // If Standard, League
+        } else if (gamemode === 1) {
+            url = url_data.league_url;
 
-        });
-      } else {
-        displayRejection(reject);
-      }
+            // Data
+            // Score
+            data.S1 = scores[0];
+            data.S2 = scores[1];
+
+            // Validation
+            if (quiz.infoContainer.$totalSongCount.text() != "15") reject = Rejections.SONGCOUNT;
+            else if (quiz.infoContainer.$currentSongCount.text() != "15" || !quiz.infoContainer.$nameHider.hasClass('hide'))
+                reject = Rejections.FINISHED;
+
+            // Otherwise, no idea
+        } else {
+            reject = Rejections.GAMEMODE;
+        }
+
+        // Beginning of AJAX, if no rejections
+        if (!reject) {
+
+            // AJAX request
+            console.log("Sending AJAX request")
+            submitRequest = $.ajax({
+                url: url,
+                type: "post",
+                data: data
+            });
+
+            // Callback handler that will be called on success
+            submitRequest.done(function (response, textStatus, jqXHR) {
+                if (response.result == "ERROR") {
+                    if (response.error.includes("repeated entry")) {
+                        displayRejection(Rejections.DUPLICATE);
+                    } else {
+                        displayMessage("Failed to submit for unknown reasons.\nServer may be busy, please try again.");
+                        console.log("Rejected by GAS.");
+                        console.error(response);
+                    }
+                } else {
+                    displayMessage("Game successfully submitted!");
+                    console.log("Submission attempt successful!");
+                }
+            });
+
+            // Callback handler that will be called on failure
+            submitRequest.fail(function (jqXHR, textStatus, errorThrown) {
+                displayMessage("Failed to submit for unknown reasons.\nServer may be busy, please try again.");
+                console.error("Submission attempt failed: "+textStatus, errorThrown);
+            });
+
+            // Callback handler that will be called regardless
+            // if the request failed or succeeded
+            submitRequest.always(function () {
+
+            });
+        } else {
+            displayRejection(reject);
+        }
+      });
     })
     .popover({
       placement: "bottom",
