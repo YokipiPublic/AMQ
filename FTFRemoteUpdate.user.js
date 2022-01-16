@@ -1,7 +1,8 @@
 // ==UserScript==
 // @name         AMQ FTF Remote Update
 // @namespace    https://github.com/YokipiPublic/AMQ/
-// @version      0.4.1
+// @version      0.5
+// @history      0.5 Determines which league you're playing in by song types
 // @history      0.4 New GameMode syntax and now fetches GAS app URL from GitHub
 // @history      0.3 Support for AMQrews
 // @history      0.2 Game validation and message display
@@ -147,13 +148,35 @@ function addButton() {
             // Score
             data.S1 = scores[0];
             data.S2 = scores[1];
+          
+            // League
+            let songtypes = hostModal.getSettings().songType;
+            let league = "AL";
+            if (songtypes.advancedOn) {
+                if (songtypes.advancedValue.random > 0) {
+                    league = "FL";
+                } else if (songtypes.advancedValue.inserts > 0) {
+                    league = "FL";
+                } else if (songtypes.advancedValue.endings > 0) {
+                    league = "CL";
+                }
+            } else {
+                if (songtypes.standardValue.inserts) {
+                    league = "FL";
+                } else if (songtypes.standardValue.endings) {
+                    league = "CL";
+                }
+            }
+            data.League = league;
 
             // Validation
+            /*
             if (quiz.infoContainer.$totalSongCount.text() != "15") reject = Rejections.SONGCOUNT;
             else if (quiz.infoContainer.$currentSongCount.text() != "15" || !quiz.infoContainer.$nameHider.hasClass('hide'))
                 reject = Rejections.FINISHED;
+             */
 
-            // Otherwise, no idea
+        // Otherwise, no idea
         } else {
             reject = Rejections.GAMEMODE;
         }
