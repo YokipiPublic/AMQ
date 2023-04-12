@@ -1,7 +1,8 @@
 // ==UserScript==
 // @name         AMQ FTF Remote Update
 // @namespace    https://github.com/YokipiPublic/AMQ/
-// @version      0.5
+// @version      0.5.1
+// @history      0.5.1 Renames Only Watched to Watched
 // @history      0.5 Determines which league you're playing in by song types
 // @history      0.4 New GameMode syntax and now fetches GAS app URL from GitHub
 // @history      0.3 Support for AMQrews
@@ -124,7 +125,7 @@ function addButton() {
             } else {
                 if (songselection.standardValue != 3) songselectionrandom = true;
             }
-            data.LR = songselectionrandom ? "Random" : "Only Watched";
+            data.LR = songselectionrandom ? "Random" : "Watched";
             // Tags
             let tags = hostModal.getSettings().tags;
             if (typeof tags[0] !== 'undefined') {
